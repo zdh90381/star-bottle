@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>时光星瓶</title>
-<!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -93,29 +91,93 @@ textarea{
   color:#fff;
   font-size:16px;
 }
-.loading{
+.loading-txt{
   position:fixed;
   top:46%;
   left:50%;
-  transform:translate(-50%);
+  transform:translate(-50%,-50%);
   color:#ddd;
+  font-size:26px;
 }
 </style>
 </head>
 <body>
-<div class="loading">正在唤醒星星...</div>
-<div class="msg-box">
-  <div class="msg-content"></div>
-  <div class="msg-time"></div>
-  <button class="close-btn">收好星星 ✦</button>
+<div class="loading-txt" id="loadingText">正在唤醒星星...</div>
+<div class="msg-box" id="msgBox">
+  <div class="msg-content" id="msgContent"></div>
+  <div class="msg-time" id="msgTime"></div>
+  <button class="close-btn" onclick="closeMsg()">收好星星 ✦</button>
 </div>
 
 <div class="input-area">
-  <textarea placeholder="写下一句话，化作一颗星星留在时光瓶..." rows="3" maxlength="120"></textarea>
-  <button class="submit">投放星星</button>
+  <textarea id="inputBox" placeholder="写下一句话，化作一颗星星留在时光瓶..." rows="3" maxlength="120"></textarea>
+  <button class="submit" onclick="sendMessage()">投放星星</button>
 </div>
 
 <script>
-// ==========【请修改这里！填入你自己的信息】==========
-const SUPABASE_URL = "填入你的Project URL";
-const SUP
+const loadingText = document.getElementById("loadingText");
+const msgBox = document.getElementById("msgBox");
+const msgContent = document.getElementById("msgContent");
+const msgTime = document.getElementById("msgTime");
+const inputBox = document.getElementById("inputBox");
+
+function closeMsg(){
+  msgBox.style.display = "none";
+}
+
+function createStar(item){
+  const star = document.createElement("div");
+  star.className = "star";
+  star.innerText = "✦";
+  star.style.left = Math.random()*86 + "%";
+  star.style.top = Math.random()*72 + "%";
+  star.style.animationDuration = (6 + Math.random()*7)+"s";
+  star.onclick = ()=>{
+    msgContent.innerText = item.content;
+    msgTime.innerText = item.create_time;
+    msgBox.style.display = "block";
+  };
+  document.body.appendChild(star);
+}
+
+// 带超时请求，3000ms失败直接提示
+async function loadAllMessage(){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(),3000);
+  try{
+    const res = await fetch("/api/get", {signal:controller.signal});
+    clearTimeout(timer);
+    if(!res.ok) throw new Error("接口异常");
+    const list = await res.json();
+    loadingText.remove();
+    list.forEach(item=>createStar(item));
+  }catch(err){
+    loadingText.innerText = "读取星星失败，请刷新页面";
+    console.error("加载错误：",err);
+  }
+}
+
+async function sendMessage(){
+  const text = inputBox.value.trim();
+  if(!text){
+    alert("请输入内容");
+    return;
+  }
+  const res = await fetch("/api/add",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({content:text})
+  });
+  const data = await res.json();
+  if(data.success){
+    alert("投放成功！刷新页面即可看见");
+    inputBox.value = "";
+  }else{
+    alert("投放失败");
+  }
+}
+
+loadAllMessage();
+</script>
+</body>
+</html>
