@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>时光星瓶</title>
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#050818;
+  min-height:100vh;
+  overflow:hidden;
+  font-family:system-ui, sans-serif;
+}
+.star{
+  position:absolute;
+  font-size:28px;
+  color:#ffe87c;
+  cursor:pointer;
+  transition:opacity 0.6s ease;
+  user-select:none;
+  animation:float 8s ease-in-out infinite;
+}
+@keyframes float{
+  0%{transform:translate(0,0) rotate(0deg);}
+  50%{transform:translate(25px,-35px) rotate(12deg);}
+  100%{transform:translate(0,0) rotate(0deg);}
+}
+.star.hide{
+  opacity:0;
+  pointer-events:none;
+}
+.msg-box{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(20,25,45,0.94);
+  color:#fff;
+  padding:28px;
+  border-radius:18px;
+  max-width:88%;
+  display:none;
+  z-index:99;
+  border:1px solid #846fd8;
+}
+.msg-content{
+  line-height:1.8;
+  font-size:17px;
+  margin-bottom:16px;
+}
+.msg-time{
+  font-size:13px;
+  opacity:0.65;
+  margin-bottom:20px;
+}
+.close-btn{
+  width:100%;
+  padding:9px;
+  border:none;
+  border-radius:10px;
+  background:#826cd4;
+  color:#fff;
+  font-size:15px;
+}
+.input-area{
+  position:fixed;
+  bottom:22px;
+  left:50%;
+  transform:translateX(-50%);
+  width:92%;
+  z-index:10;
+}
+textarea{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid #6c5eb8;
+  color:#fff;
+  font-size:16px;
+  outline:none;
+}
+.submit{
+  margin-top:10px;
+  width:100%;
+  padding:11px;
+  border-radius:12px;
+  border:none;
+  background:#826cd4;
+  color:#fff;
+  font-size:16px;
+}
+.loading{
+  position:fixed;
+  top:46%;
+  left:50%;
+  transform:translate(-50%);
+  color:#ddd;
+}
+</style>
+</head>
+<body>
+<div class="loading">正在唤醒星星...</div>
+<div class="msg-box">
+  <div class="msg-content"></div>
+  <div class="msg-time"></div>
+  <button class="close-btn">收好星星 ✦</button>
+</div>
+
+<div class="input-area">
+  <textarea placeholder="写下一句话，化作一颗星星留在时光瓶..." rows="3" maxlength="120"></textarea>
+  <button class="submit">投放星星</button>
+</div>
+
+<script>
+// ==========【请修改这里！填入你自己的信息】==========
+const SUPABASE_URL = "填入你的Project URL";
+const SUP
